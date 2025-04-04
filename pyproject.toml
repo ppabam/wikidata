@@ -17,3 +17,12 @@ build-backend = "pdm.backend"
 
 [tool.pdm]
 distribution = true
+
+[dependency-groups]
+note = [
+    "jupyterlab>=4.4.0",
+]
+dev = [
+    "pyspark>=3.5.5",
+    "pandas>=2.2.3",
+]
