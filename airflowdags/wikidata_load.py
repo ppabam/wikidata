@@ -23,7 +23,9 @@ with DAG(
     
     load_data = BashOperator(
         task_id='load_data',
-        bash_command="echo 'task'"
+        bash_command="""
+        ssh -i ~/.ssh/gcp_tom tom@34.64.87.127 '/home/tom/code/wikidata/pyspark/run.sh { ds } wiki_load.py'
+        """
     )
     
     start = EmptyOperator(task_id='start')

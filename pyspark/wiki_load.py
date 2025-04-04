@@ -4,8 +4,7 @@ import os
 import sys
 from datetime import datetime
 
-RAW_BASE = "gs://sunsin-bucket/wiki/"
-SAVE_BASE = "gs://sunsin-bucket/wiki/parquet/ko"
+IS_REAL = False
 
 def load_pageviews(spark, file_path, dt):
     return spark.read.option("delimiter", " ").csv(file_path, inferSchema=True) \
@@ -16,7 +15,7 @@ def load_pageviews(spark, file_path, dt):
 def cprint(msg: str, size=33):
     print(msg.center(size, "*"))
 
-def run(data_path: str, dt: str):
+def run(data_path: str, dt: str, save_base: str):
     # SparkSession 생성 (마스터 URL 지정 X, spark-submit에서 설정됨)
     spark = SparkSession.builder.appName("SamplingJob").getOrCreate()
 
@@ -30,14 +29,13 @@ def run(data_path: str, dt: str):
     df = spark.sql("""
     SELECT
         domain, title, views, size,
-        date,
         INT(SUBSTRING(ELEMENT_AT(SPLIT(file_path, '/'), -1), 20, 2)) AS hour
     FROM temp_raw
     WHERE domain = 'ko' OR domain LIKE 'ko.%'
     """)
     
     cprint("SAVE START")
-    save_path = f'{SAVE_BASE}/date=20240101/date={dt}/'
+    save_path = f'{save_base}/date=20240101/date={dt}/'
     df.write.mode("overwrite").parquet(save_path)
     assert_df = spark.read.parquet(save_path)
     assert_df.show()
@@ -57,7 +55,17 @@ def extract_prefix_and_partition(date_str: str) -> tuple[str, str]:
     return prefix, partition
 
 if __name__ == "__main__":
-    DT = sys.argv[1]
-    prefix, partition = extract_prefix_and_partition(DT)
-    raw_path = f"{RAW_BASE}/{prefix}/dt={partition}"
-    run(raw_path, DT)
+    if IS_REAL:
+        DT = sys.argv[1]
+        RAW_BASE = "gs://sunsin-bucket/wiki/"
+        SAVE_BASE = "gs://sunsin-bucket/wiki/parquet/ko"
+        
+        prefix, partition = extract_prefix_and_partition(DT)
+        raw_path = f"{RAW_BASE}/{prefix}/dt={partition}"
+        run(raw_path, DT, SAVE_BASE)
+    else:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        data_path = os.path.join(base_dir, "../data/wiki/2024/2024-01/dt=20240101/")
+        SAVE_BASE = os.path.join(base_dir, "../data/wiki/save/ko")
+        DT = "2024-01-01"
+        run(data_path, DT, SAVE_BASE)
