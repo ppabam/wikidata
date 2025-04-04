@@ -4,7 +4,7 @@ import os
 import sys
 from datetime import datetime
 
-IS_REAL = False
+IS_REAL = True
 
 def load_pageviews(spark, file_path, dt):
     return spark.read.option("delimiter", " ").csv(file_path, inferSchema=True) \
