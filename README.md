@@ -14,4 +14,11 @@ $ gcloud storage cp -r 2024-07/ gs://sunsin-bucket/wiki/
 
 # copy -m : 다중 스레드로 병렬 복사
 $ gsutil -m cp -r 2025-01/ gs://sunsin-bucket/wiki/
+
+# 일자별 다운로드
+$ wget -r -l1 -nd -A "pageviews-20240110-*.gz" https://dumps.wikimedia.org/other/pageviews/2024/2024-01/
+
+# 대상 폴더 크기 확인
+$ gcloud storage du -r -s gs://sunsin-bucket/wiki/parquet/ko/date=2024-09-06/
+16.88MiB     gs://sunsin-bucket/wiki/parquet/ko/date=2024-09-06/
 ```

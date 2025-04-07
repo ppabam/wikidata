@@ -17,7 +17,7 @@ def cprint(msg: str, size=33):
 
 def run(data_path: str, dt: str, save_base: str):
     # SparkSession 생성 (마스터 URL 지정 X, spark-submit에서 설정됨)
-    spark = SparkSession.builder.appName("SamplingJob").getOrCreate()
+    spark = SparkSession.builder.appName(f"wiki_load_{dt}").getOrCreate()
 
     cprint("LOAD START")
     cprint(data_path)
@@ -35,9 +35,9 @@ def run(data_path: str, dt: str, save_base: str):
     """)
     
     cprint("SAVE START")
-    save_path = f'{save_base}/date=20240101/date={dt}/'
+    save_path = f'{save_base}/date={dt}/'
     df.write.mode("overwrite").parquet(save_path)
-    assert_df = spark.read.parquet(save_path)
+    assert_df = spark.read.option("compression", "gzip").parquet(save_path)
     assert_df.show()
     cprint(f"{save_path},cnt:{assert_df.count()}")
     cprint("SAVE END")

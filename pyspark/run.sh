@@ -10,5 +10,5 @@ echo "PY_PATH  ==> $PY_PATH"
 $SPARK_HOME/bin/spark-submit \
 --master spark://spark-tom-1.c.praxis-bond-455400-a4.internal:7077 \
 --executor-memory 2G \
---executor-cores 4 \
+--executor-cores 3 \
 $PY_PATH $DS
