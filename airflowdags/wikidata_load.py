@@ -24,7 +24,7 @@ with DAG(
     load_data = BashOperator(
         task_id='load_data',
         bash_command="""
-        ssh -i ~/.ssh/gcp_tom tom@34.64.87.127 '/home/tom/code/wikidata/pyspark/run.sh { ds } wiki_load.py'
+        ssh -i ~/.ssh/gcp_tom tom@34.64.87.127 '/home/tom/code/wikidata/pyspark/run.sh {{ ds }} /home/tom/code/wikidata/pyspark/wiki_load.py'
         """
     )
     
